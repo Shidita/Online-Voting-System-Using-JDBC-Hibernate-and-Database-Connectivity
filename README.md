@@ -1,240 +1,57 @@
-# Online Voting System Using JDBC, Hibernate and Database Connectivity
+# Online Voting System — Advanced Internet Programming
 
-## Project Overview
+**Servlets + JSP (JSTL) + HttpSession + JDBC + Hibernate 6.** Runs on **Apache Tomcat 10.1 / 11** (Jakarta EE).
+Database: embedded H2 — **no MySQL, no password, no SQL import needed.**
 
-The **Online Voting System** is a Java-based full-stack web application developed to provide a simple, secure, and efficient platform for conducting online elections. The system allows registered users to log in, view available candidates, cast their vote, and view voting results.
+## Run in NetBeans (easiest)
+1. Extract the zip. In NetBeans: **File → Open Project** → select the `voting-aip` folder.
+2. Make sure your Tomcat 11 is added: **Services → Servers → Add Server → Apache Tomcat** (once only).
+3. Right-click the project → **Properties → Run** → Server = Apache Tomcat 11.
+4. Right-click the project → **Clean and Build** (first time needs internet to download libraries).
+5. Right-click the project → **Run**.
+6. Open **http://localhost:8080/voting-aip/** (use the port your Tomcat shows, e.g. 8080).
 
-An administrator can manage candidates and monitor the voting process through the admin panel.
+Needs **JDK 17 or newer** (Tomcat 11 needs it too).
 
-## Technologies Used
+## Run without an IDE
+`mvn clean package` → copy `target/voting-aip.war` into Tomcat's `webapps` folder → start Tomcat →
+open `http://localhost:8080/voting-aip/`
 
-- Java
-- JSP
-- Java Servlets
-- HTML5
-- CSS3
-- JavaScript
-- JDBC
-- Hibernate ORM
-- H2 Database
-- Apache Tomcat 11
-- Maven
+## Logins
+- Admin: **admin / admin123** (add / delete candidates)
+- Voter: click **Register**, create an account, then vote.
+- Open the *Live results* page in one browser and vote from another: counts update every 3 seconds.
 
-## Main Features
+## Features
+- Register / login / logout with `HttpSession` (session id regenerated at login, 30 min timeout)
+- **One vote per user** — checked in code and enforced by a UNIQUE database constraint
+- Live results (JavaScript `fetch` polls `/results-data` JSON every 3 seconds)
+- Admin panel (role check in `AuthFilter`)
+- Safe: PreparedStatement + HQL parameters, `<c:out>` escaping, PBKDF2 password hashing
 
-### Voter Features
+## Architecture (MVC)
+| Layer | Technology | Files |
+|---|---|---|
+| Model | Hibernate entities | `Candidate`, `Vote`, `ResultRow` |
+| View | JSP + JSTL | `WEB-INF/views/*.jsp` |
+| Controller | Servlets + Filter | `servlet/*.java` |
+| Users | **JDBC** | `dao/UserDAO`, `util/DBUtil` |
+| Candidates & votes | **Hibernate** | `dao/VoteDAO`, `util/HibernateUtil` |
+| Access control | **HttpSession** + `AuthFilter` | `LoginServlet`, `AuthFilter` |
+| Startup data | `ServletContextListener` | `AppInit` |
 
-- User registration
-- Secure user login
-- Session-based authentication
-- View available candidates
-- Cast vote
-- Prevention of duplicate voting
-- View live voting results
-- Logout
+## Where is the data?
+In `votingdb.mv.db` inside your user folder (e.g. `C:\Users\<you>\`). Delete that file to reset everything.
 
-### Admin Features
+## Problems?
+| Problem | Fix |
+|---|---|
+| Red marks in NetBeans | Right-click project → *Clean and Build with Dependencies*; check JDK 17+ |
+| 500 NoClassDefFoundError (JSTL) | Right-click project → Clean and Build, then Run again (WAR must contain jstl jars) |
+| 404 | Use the app name in the URL: `/voting-aip/` — and Tomcat must be 10.1 or 11 |
+| "Database may be already in use" | Stop the old Tomcat run (only one copy may run) and run again |
 
-- Admin authentication
-- Add candidates
-- Delete candidates
-- View candidates
-- View voting results
-- Manage the voting process
-
-## Database Connectivity
-
-The project demonstrates two database connectivity approaches.
-
-### JDBC
-
-JDBC is used for user-related database operations such as:
-
-- User registration
-- User login
-- Authentication
-- User information retrieval
-
-### Hibernate
-
-Hibernate ORM is used for:
-
-- Candidate management
-- Voting operations
-- Vote retrieval
-- Result generation
-
-## System Architecture
-
-```text
-Web Browser
-     |
-     v
-JSP / HTML / CSS / JavaScript
-     |
-     v
-Apache Tomcat 11
-     |
-     v
-Java Servlets
-     |
-     v
-DAO Layer
-     |
-     +------------------+
-     |                  |
-     v                  v
-   JDBC             Hibernate
-     |                  |
-     +--------+---------+
-              |
-              v
-         H2 Database
-```
-
-## Project Working
-
-### 1. User Registration
-
-A new user enters the required registration details. The request is processed by the registration servlet and the user information is stored in the H2 database using JDBC.
-
-### 2. User Login
-
-The user enters their login credentials. The LoginServlet validates the information using JDBC. After successful authentication, an HTTP session is created.
-
-### 3. Candidate Selection
-
-After login, the voter can view the list of available candidates and select a candidate for voting.
-
-### 4. Vote Casting
-
-The voter submits the selected candidate. The VoteServlet processes the request and VoteDAO uses Hibernate to store the vote in the database.
-
-### 5. Duplicate Vote Prevention
-
-Before storing a vote, the system checks whether the user has already voted. If a previous vote exists, the system rejects the second voting attempt.
-
-### 6. Voting Results
-
-The system retrieves voting information from the database and displays the current results. JavaScript is used to dynamically refresh the displayed results.
-
-### 7. Admin Panel
-
-The administrator can add or delete candidates and view the voting results through the administrator dashboard.
-
-## Security Features
-
-The application includes:
-
-- Password hashing
-- Session-based authentication
-- Role-based access control
-- Authentication filter
-- Prepared statements
-- Duplicate-vote prevention
-- Session timeout
-
-## Project Structure
-
-```text
-online-voting-system-jdbc-hibernate/
-│
-├── src/
-│   └── main/
-│       ├── java/
-│       ├── resources/
-│       └── webapp/
-│
-├── pom.xml
-└── README.md
-```
-
-## Database
-
-The project uses **H2 Database** for storing:
-
-- Users
-- Candidates
-- Votes
-
-JDBC and Hibernate are used to communicate with the database according to the operation being performed.
-
-## Client-Server Communication
-
-```text
-Client / Browser
-       |
-       | HTTP Request
-       v
-Apache Tomcat 11
-       |
-       v
-Java Servlet
-       |
-       v
-JDBC / Hibernate
-       |
-       v
-H2 Database
-       |
-       v
-Result
-       |
-       v
-HTTP Response
-       |
-       v
-Client / Browser
-```
-
-## Testing
-
-The application was tested for:
-
-- User registration
-- Valid login
-- Invalid login
-- Candidate display
-- Vote casting
-- Duplicate voting prevention
-- Admin login
-- Add candidate
-- Delete candidate
-- Logout
-- Voting result display
-
-## How to Run
-
-1. Install Java.
-2. Install Apache Tomcat 11.
-3. Install Maven.
-4. Open the project in a Java IDE.
-5. Allow Maven to download the required dependencies.
-6. Configure Apache Tomcat 11.
-7. Build and deploy the project.
-8. Start the Tomcat server.
-9. Open the application in a web browser.
-
-## Project Objective
-
-The main objective of this project is to demonstrate the development of a complete Java full-stack application with:
-
-- Client-server communication
-- Database connectivity
-- JDBC
-- Hibernate ORM
-- Authentication
-- Authorization
-- Voting functionality
-- Transaction handling
-- Database management
-
-## Project Information
-
-**Project Title:** Online Voting System Using JDBC, Hibernate and Database Connectivity
-
-**University:** Chandigarh University
-
-**Academic Year:** 2026–2027
-
-**Project Type:** Full-Stack Web Application
+## Viva flow
+1. `POST /vote` → `AuthFilter` checks session → `VoteServlet` → `VoteDAO.castVote()` (Hibernate transaction).
+2. Duplicate vote → blocked by `hasVoted`, and by `UNIQUE(voter)` if two requests race.
+3. Results page → `fetch('/results-data')` → `ResultsDataServlet` → HQL `group by candidateId`.

@@ -1,0 +1,16 @@
+com\aip\model\ResultRow.class
+com\aip\dao\VoteDAO.class
+com\aip\servlet\AppInit.class
+com\aip\model\Candidate.class
+com\aip\servlet\RegisterServlet.class
+com\aip\servlet\ResultsServlet.class
+com\aip\servlet\AuthFilter.class
+com\aip\servlet\LoginServlet.class
+com\aip\servlet\ResultsDataServlet.class
+com\aip\dao\UserDAO.class
+com\aip\servlet\LogoutServlet.class
+com\aip\servlet\VoteServlet.class
+com\aip\model\Vote.class
+com\aip\util\DBUtil.class
+com\aip\util\HibernateUtil.class
+com\aip\servlet\AdminServlet.class

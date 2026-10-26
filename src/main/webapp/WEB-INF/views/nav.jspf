@@ -1,0 +1,15 @@
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="${pageContext.request.contextPath}/vote"><span class="brand-logo">&#x1F5F3;</span> E-Vote</a>
+  <nav class="menu">
+    <a class="${active == 'vote' ? 'active' : ''}" href="${pageContext.request.contextPath}/vote">Vote</a>
+    <a class="${active == 'results' ? 'active' : ''}" href="${pageContext.request.contextPath}/results">Live Results</a>
+    <c:if test="${sessionScope.role == 'ADMIN'}">
+      <a class="${active == 'admin' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin">Admin</a>
+    </c:if>
+  </nav>
+  <div class="who">
+    <span class="chip"><c:out value="${sessionScope.user}"/><small><c:out value="${sessionScope.role}"/></small></span>
+    <form method="post" action="${pageContext.request.contextPath}/logout"><button>Logout</button></form>
+  </div>
+</div></header>
